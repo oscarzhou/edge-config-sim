@@ -1,0 +1,116 @@
+name: device_match_mock
+services:
+  api:
+    command:
+      - sh
+      - -c
+      - |
+        echo "[boot] API_PORT= API_MESSAGE= CONFIG_VERSION=";
+        last="";
+        (
+          while true; do
+            cur="$$( (sha256sum /app/app.py 2>/dev/null; find /app/config -type f -print0 2>/dev/null | sort -z | xargs -0 sha256sum 2>/dev/null) \
+              | sha256sum | awk '{print $$1}' )";
+            if [ "" != "" ]; then
+              echo "[config-change] api_fingerprint=";
+              last="";
+            fi
+            sleep 3;
+          done
+        ) &
+        python -u /app/app.py
+    container_name: demo_api
+    environment:
+      API_MESSAGE: Hello-from-api
+      API_PORT: "8000"
+      CONFIG_VERSION: "1"
+    image: python:3.12-alpine
+    networks:
+      default: null
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/api/app.py
+        target: /app/app.py
+        read_only: true
+        bind: {}
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/api/config
+        target: /app/config
+        read_only: true
+        bind: {}
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/api/logs
+        target: /app/logs
+        bind: {}
+    working_dir: /app
+  web:
+    container_name: demo_web
+    depends_on:
+      api:
+        condition: service_started
+        required: true
+    environment:
+      CONFIG_VERSION: "1"
+      WEB_GREETING: Hello-from-web-device-001
+      WEB_PAGE_COLOR: red
+    image: nginx:1.27-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8080"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/web/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+        bind: {}
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/web/html
+        target: /usr/share/nginx/html
+        read_only: true
+        bind: {}
+  worker:
+    command:
+      - sh
+      - -c
+      - |
+        echo "[boot] WORKER_INTERVAL_SECONDS= WORKER_MESSAGE= CONFIG_VERSION=";
+        last="";
+        while true; do
+          cur="$$( (find /app/config /app/data -type f -print0 2>/dev/null | sort -z | xargs -0 sha256sum 2>/dev/null) \
+            | sha256sum | awk '{print $$1}' )";
+          if [ "" != "" ]; then
+            echo "[config-change] worker_fingerprint=";
+            last="";
+          fi
+          echo "[tick] ";
+          sleep "";
+        done
+    container_name: demo_worker
+    environment:
+      CONFIG_VERSION: "1"
+      WORKER_INTERVAL_SECONDS: "5"
+      WORKER_MESSAGE: Hello-from-worker
+    image: alpine:3.20
+    networks:
+      default: null
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/worker/config
+        target: /app/config
+        read_only: true
+        bind: {}
+      - type: bind
+        source: /home/oscar/source/github.com/edge-config-sim/device_match_mock/device-001/worker/data
+        target: /app/data
+        bind: {}
+    working_dir: /app
+networks:
+  default:
+    name: compose_demo_net
