@@ -27,7 +27,7 @@ services:
       - sh
       - -c
       - |
-        echo "[boot] API_PORT=${API_PORT} API_MESSAGE=${API_MESSAGE} CONFIG_VERSION=${CONFIG_VERSION}";
+        echo "[boot] API_PORT=$${API_PORT} API_MESSAGE=$${API_MESSAGE} CONFIG_VERSION=$${CONFIG_VERSION}";
         echo "[boot] Config note: $(cat /app/config/app-config.json 2>/dev/null | grep -o '"note"[^}]*' | cut -d':' -f2- | tr -d '\",' || echo 'N/A')";
         (
           while true; do
@@ -51,12 +51,12 @@ services:
       - sh
       - -c
       - |
-        echo "[boot] WORKER_INTERVAL_SECONDS=${WORKER_INTERVAL_SECONDS} WORKER_MESSAGE=${WORKER_MESSAGE} CONFIG_VERSION=${CONFIG_VERSION}";
+        echo "[boot] WORKER_INTERVAL_SECONDS=$${WORKER_INTERVAL_SECONDS} WORKER_MESSAGE=$${WORKER_MESSAGE} CONFIG_VERSION=$${CONFIG_VERSION}";
         echo "[boot] Config: $(cat /app/config/worker.conf 2>/dev/null || echo 'N/A')";
         while true; do
-          echo "[tick] ${WORKER_MESSAGE}";
+          echo "[tick] $${WORKER_MESSAGE}";
           echo "[tick] Config: $(cat /app/config/worker.conf 2>/dev/null || echo 'N/A')";
-          sleep "${WORKER_INTERVAL_SECONDS:-5}";
+          sleep "$${WORKER_INTERVAL_SECONDS:-5}";
         done
     restart: unless-stopped
 
