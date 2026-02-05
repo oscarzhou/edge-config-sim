@@ -28,6 +28,7 @@ services:
       - -c
       - |
         echo "[boot] API_PORT=${API_PORT} API_MESSAGE=${API_MESSAGE} CONFIG_VERSION=${CONFIG_VERSION}";
+        echo "[boot] Config: $(cat /app/config/app-config.json 2>/dev/null || echo 'N/A')";
         last="";
         (
           while true; do
@@ -35,6 +36,7 @@ services:
               | sha256sum | awk '{print $1}' )";
             if [ "$cur" != "$last" ]; then
               echo "[config-change] api_fingerprint=$cur";
+              echo "[config-change] Config: $(cat /app/config/app-config.json 2>/dev/null || echo 'N/A')";
               last="$cur";
             fi
             sleep 3;
@@ -57,16 +59,19 @@ services:
       - -c
       - |
         echo "[boot] WORKER_INTERVAL_SECONDS=${WORKER_INTERVAL_SECONDS} WORKER_MESSAGE=${WORKER_MESSAGE} CONFIG_VERSION=${CONFIG_VERSION}";
+        echo "[boot] Config: $(cat /app/config/worker.conf 2>/dev/null || echo 'N/A')";
         last="";
         while true; do
           cur="$( (find /app/config /app/data -type f -print0 2>/dev/null | sort -z | xargs -0 sha256sum 2>/dev/null) \
             | sha256sum | awk '{print $1}' )";
           if [ "$cur" != "$last" ]; then
             echo "[config-change] worker_fingerprint=$cur";
+            echo "[config-change] Config: $(cat /app/config/worker.conf 2>/dev/null || echo 'N/A')";
             last="$cur";
           fi
           echo "[tick] ${WORKER_MESSAGE}";
-          sleep "${WORKER_INTERVAL_SECONDS}";
+          echo "[tick] Config: $(cat /app/config/worker.conf 2>/dev/null || echo 'N/A')";
+          sleep "${WORKER_INTERVAL_SECONDS:-5}";
         done
     restart: unless-stopped
 
