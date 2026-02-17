@@ -1,0 +1,20 @@
+# Overlay for values/blue-app.yaml to mimic a beefier-but-local workload.
+replicaCount: 2
+image:
+  repository: nginx:alpine
+  tag: "1.4.2"
+serviceAccount:
+  create: true
+  name: blue-local-sa
+podAnnotations:
+  demo.workloads/variant: prod-local
+podLabels:
+  traffic-tier: primary
+extraEnv:
+  - name: APP_VARIANT
+    value: prod
+  - name: ENABLE_METRICS
+    value: "true"
+service:
+  type: NodePort
+  port: 8080

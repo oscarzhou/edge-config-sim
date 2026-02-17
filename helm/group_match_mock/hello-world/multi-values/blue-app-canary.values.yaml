@@ -1,0 +1,18 @@
+# Overlay for values/blue-app.yaml to run a tiny canary on local clusters.
+replicaCount: 1
+image:
+  pullPolicy: Always
+  tag: "canary-20260217"
+serviceAccount:
+  annotations:
+    traffic-slice: canary
+podAnnotations:
+  demo.workloads/slice: canary
+podLabels:
+  traffic-tier: test
+extraEnv:
+  - name: APP_VARIANT
+    value: canary
+service:
+  type: ClusterIP
+  port: 8081

@@ -1,0 +1,19 @@
+# Overlay for values/green-app.yaml targeting an internal pre-prod slice.
+replicaCount: 2
+image:
+  repository: registry.internal/hello-green
+  pullPolicy: IfNotPresent
+  tag: "2026.02.17"
+podAnnotations:
+  demo.workloads/variant: internal
+podLabels:
+  traffic-tier: staging
+extraEnv:
+  - name: APP_VARIANT
+    value: internal
+serviceAccount:
+  create: false
+  name: platform-shared
+service:
+  type: ClusterIP
+  port: 8080
