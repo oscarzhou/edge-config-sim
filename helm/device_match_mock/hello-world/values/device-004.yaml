@@ -10,7 +10,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-nameOverride: "device-001"
+nameOverride: "device-004"
 fullnameOverride: ""
 
 serviceAccount:
