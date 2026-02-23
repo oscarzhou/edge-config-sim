@@ -5,10 +5,10 @@
 replicaCount: 2
 
 image:
-  repository: ghcr.io/oscarzhou-portainer/portainer-demo/nginx:latest
+  repository: ghcr.io/oscarzhou-portainer/portainer-demo/nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 nameOverride: "blue-app"
 fullnameOverride: ""
