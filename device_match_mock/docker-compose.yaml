@@ -21,7 +21,6 @@ services:
     volumes:
       - ./${PORTAINER_EDGE_ID}/api/app.py:/app/app.py:ro
       - ./${PORTAINER_EDGE_ID}/api/config:/app/config:ro
-      - ./${PORTAINER_EDGE_ID}/api/logs:/app/logs
     working_dir: /app
     command:
       - sh
